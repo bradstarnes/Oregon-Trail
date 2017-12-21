@@ -1,0 +1,427 @@
+########################################################################
+##
+## CS 101
+## Program 7, Oregon Trail
+## Brad Starnes
+## JBS5PZ@MAIL.UMKC.EDU
+##
+## PROBLEM : Help the settlers reach from Independence, MO to Oregon
+##
+## ALGORITHM :
+##      1. N/A
+##
+## ERROR HANDLING:
+##      After food is gone, it's posting a negative amount.
+##
+## OTHER COMMENTS:
+##      Any special comments
+##
+########################################################################
+
+#Import Random for that random int stuff
+#Import sys to close this when we done
+#Import time cuz they in Oregon and don't know how to sleep ex. time.sleep
+import sys
+import random
+import time
+
+#Set the dictionary values for rations, pace, and health.
+rations = {1: "normal", 2: "small", 3: "starving", 4: "out of food"}
+pace = {1: "slow", 2: "moderate", 3: "fast"}
+health = {1: "good", 2: "fair", 3: "poor"}
+
+#Initiate the Person Class
+class Person(object):
+
+    #Initialize the self class.
+    def __init__(self, name: str):
+        """ Initializes a Person with their name, and sets their health to 100"""
+        self.health = 100
+        self.name = name
+
+    #String format and health of the person
+    def __str__(self):
+        """:return: str  Format with the name_-_health of the person"""
+        return "{} - {}".format(self.name, self.health)
+
+#Initiate the Wagon Class
+class Wagon(object):
+
+    #Initialize the self class and it's value
+    def __init__(self, food: int, mile: int, pace: int, rations: int, days: int):
+        """ Sets up an instance of the wagon.
+        :param food: The amount of food in pounds on the wagon.
+        :return:
+        :attributes to set
+            food : int - Food passed in as paramter
+            mile : int - How many miles the wagon has travelled   Initialize to 0.
+            settlers : list - Create an empty list of the settlers ( instances of Person )
+            pace : int - How fast the settlers will be moving.
+                1 - slow, 2 - moderate, 3 - fast
+            rations : int - Rationing setting for the setllers
+                1 - normal ration, 2 - small ration, 3 - limited rations
+            day : int - The day of the adventure.  Starts at 1.
+        """
+        self.settlers = [] #Create List
+        self.pace = pace #Set that pace
+        self.healths = health #Set the health = to the group health
+        self.food = food #Set the Food
+        self.days = 0 #Set the days to 0
+        self.mile = mile #Set the miles to the miles passed in
+        self.ration = rations #Set the rations do the rations passed in
+
+    #Method that returns the pace of the wagon
+    def pace_str(self, pace_choice):
+        """ Returns a string representation of the pace
+        :return: str -
+                    If pace is 1, return 'slow'
+                    If pace is 2, return 'moderate'
+                    If pace is 3, return 'fast'
+        """
+
+        #This is pretty self explanatory, if you don't know basic if, elif, go back to high school
+        if pace_choice == 1:
+            pace = "slow"
+        elif pace_choice == 2:
+            pace = "moderate"
+        elif pace_choice == 3:
+            pace =  "fast"
+
+        return pace
+
+    #Method that returns the rations
+    def ration_str(self, ration_choice):
+        """ Return a string representation of the rations
+        :return: str -
+                    If ration is 1, return 'normal'
+                    If ration is 2, return 'small'
+                    If ration is 3, return 'starving'
+        """
+
+        #This is pretty self explanatory, if you don't know basic if, elif, go back to high school
+        if ration_choice == 1:
+            return "normal"
+        elif ration_choice == 2:
+            return "small"
+        elif ration_choice == 3:
+            return "starving"
+        elif ration_choice == 4:
+            return "out of food"
+
+        return "Invalid choice"
+
+    #Method that returns the health of the group
+    def group_health(self):
+        """ Returns back a string of how the settlers are doing.
+        :return: str -
+            If the average health of all the settlers alive is > 80, then return 'good'
+            If the average is > 50 return 'fair'
+            otherwise, return 'poor'
+        """
+        #Set average to the sum of the settlers health divide by the length of the settlers list (for when someone dies one day)
+        avg = sum(settler.health for settler in self.settlers) / len(self.settlers)
+
+        #This is pretty self explanatory, if you don't know basic if, elif, go back to high school
+        if avg >= 80:
+            self.health = 1
+        elif 80 > avg >= 50:
+            self.health = 2
+        else:
+            self.health = 3
+
+        return health[self.health]
+
+    #Wagon instance method. This gets called throughout the program.
+    def __str__(self):
+        """ Returns a String representation of the wagon  Shown below
+        :return: - str
+
+Wagon is at 0 mile on day 1
+You have 2000 pounds of food left
+You are moving at moderate pace with normal rations
+Settlers are in good health
+
+        """
+        if self.food <= 0:
+            self.food = 0
+        print("Wagon is at %s mile(s) on day %s" % (self.mile,self.days))
+        print("You have %d pounds of food left" % (self.food))
+        print("You are moving at %s pace with %s rations" % (pace[self.pace],rations[self.ration]))
+        print("Settlers are in %s health" % (wagon.group_health()))
+
+        return 
+
+    #If you can move class, read that doc string
+    def can_move(self):
+        """ Returns True if there are any settlers alive, False otherwise
+        :return: bool
+        """
+
+        #Calls self.alive to see if anyone is alive, will return True/False based off that method
+        return self.alive()
+
+    #If you arrived, you're a trooper. Checks to see if they have arived
+    def arrived(self):
+        """ Returns True if they've made it the 2170 miles to Oregon, False otherwise
+        :return: bool
+        """
+
+        if self.mile == 2170:
+            return True
+        else:
+            return False
+
+    #Method to see if anyone is alive
+    def alive(self):
+        """ Returns True if there are settlers alive, False if not
+        :return: bool
+        """
+        for settler in self.settlers:
+            if settler.health >= 0:
+                return True
+        return False
+
+    #Game over method. Aka You lost or made it
+    def game_over(self):
+        """ Returns True if the game is over.  The game is over if they made it to oregon,
+                            or all the settlers are dead.  Otherwise it returns False
+        :return: bool
+        """
+
+        if wagon.arrived() == True:
+            print("You made it Oregon! Nice job!")
+            print("Please wait....")
+            print("           ...........")
+            time.sleep(2)
+        for settler in self.settlers:
+            if settler.health >= 0:
+                return
+
+        print("Game over!\n")
+        print("Please wait....")
+        print("           ...........")
+        time.sleep(2)
+
+
+
+        #Exit the program if you lost
+        sys.exit(0)
+
+    #Method to feed them. Food = Life
+    def feed_settlers(self):
+        """ Decrements the food and feeds the settlers
+            If rations is 1, then each settler eats 3 pounds of food / day
+            If rations is 2, then each settler eats 2 pounds of food / day
+            If rations is 3, then each settler eats 1 pound of food / day
+        :return: None
+        """
+        self.food -= len(self.settlers) * abs(4 - self.ration)
+        if self.ration == 1:
+            self.food -= 3 * len(self.settlers)
+        elif self.ration == 2:
+            self.food -= 2 * len(self.settlers)
+        elif self.ration == 3:
+            self.food -= 1 * len(self.settlers)
+        else:
+            return none 
+    #Method to add settler to settlers list
+    def add_settler(self, settler):
+        self.settlers.append(settler)
+
+    #Method to remove the dead settlers.
+    def remove_died_settlers(self):
+        settlers = []
+        for settler in self.settlers:
+            if settler.health > 0:
+                settlers.append(settler)
+            elif settler.health <= 0:
+                print(settler.name, "just died one day, whoops.\n")
+                time.sleep(1)
+        self.settlers = settlers
+
+    #Adjust their health based off the doc string params
+    def adjust_health(self):
+        """ Adjusts the health of all the settlers depending on rationing and pace.
+            Less food, faster pace depletes their health faster.
+            If a settler health is <= 0, then they are dead and removed from the wagon.  RIP
+
+            The amount each settler loses in health is a random number.
+
+                                        pace
+                    1           |       2           |       3           |
+                ---------------------------------------------------------
+    ration  1   | randint(0, 1) |    randint(0, 2)  |   randint(0, 3)   |
+            2   | randint(0, 2) |    randint(0, 4)  |   randint(0, 6)   |
+            3   | randint(0, 3) |    randint(0, 6)  |   randint(0, 9)   |
+
+        :return: None
+        """
+
+        #For each settler in the list, set if, elif, else based of their pace.
+        #Sub that with an innner if, elif, else for their rations. This hurt my brain a bit
+        for settler in self.settlers:
+            if self.pace == 1:
+                if self.ration == 1:
+                    settler.health -= random.randint(0, 1)
+                elif self.ration == 2:
+                    settler.health -= random.randint(0, 2)
+                elif self.ration == 3:
+                    settler.health -= random.randint(0, 3)
+                elif self.ration == 4:
+                    settler.health -= random.randint(0, 4)
+
+            elif self.pace == 2:
+                if self.ration == 1:
+                    settler.health -= random.randint(0, 2)
+                elif self.ration == 2:
+                    settler.health -= random.randint(0, 4)
+                elif self.ration == 3:
+                    settler.health -= random.randint(0, 6)
+                elif self.ration == 4:
+                    settler.health -= random.randint(0, 8)
+
+            elif self.pace == 3:
+                if self.ration == 1:
+                    settler.health -= random.randint(0, 3)
+                elif self.ration == 2:
+                    settler.health -= random.randint(0, 6)
+                elif self.ration == 3:
+                    settler.health -= random.randint(0, 9)
+                elif self.ration == 4:
+                    settler.health -= random.randint(0, 12)
+
+
+        #Remove dead settlers
+        self.remove_died_settlers()
+
+        #If not alive, end the game.
+        if not self.alive():
+            self.game_over()
+    #Method to move based of pace
+    def move(self):
+        """ Moves the wagon by the game rules
+            The player only moves if they can move and they haven't arrived yet.
+            The number of miles covered if they can is random and dependent on pace
+                If the pace is 1, then they move from 5 - 10 miles inclusive
+                If the pace is 2, then they move from 13 - 17 miles inclusive
+                If the pace is 3, then they move from 18 - 23 miles inclusive
+            If they haven't arrived, then you should call feed_settlers and adjust health.
+            The day should get incremented.
+        :return: None
+        """
+
+        #End the game under the following params
+        if len(self.settlers) == 0:
+            self.game_over()
+        if not self.can_move():
+            self.game_over()
+
+        #Incr. day
+        wagon.change_days()
+
+        #Adjust distance based off an random int on the pace
+        if self.pace == "slow":
+            self.mile += random.randint(5, 10)
+        elif self.pace == "moderate":
+            self.mile += random.randint(13, 17)
+        else:
+            self.mile += random.randint(18, 23)
+
+        #Change their health and feed them
+        self.adjust_health()
+        self.feed_settlers()
+
+    #Method to chang day by one
+    def change_days(self):
+        self.days += 1
+
+    #Method to let them rest, Be Careful
+    def rest(self, days):
+        """ Rests the Group for a given number of days.
+            Each day of rests returns back 2 health to each settler.  ( Don't forget to feed them each day )
+        :param days: int - How many days to Rest
+        :return: None
+        """
+        rest_days = int(input("How many days do you want to rest?\n"))
+
+        #Incr. health on a +2 basis if the rest days are between 0 and 10
+        if 0 < rest_days <= 10:
+            for settler in self.settlers:
+                settler.health += 2
+                wagon.feed_settlers()
+
+        return rest_days
+
+    #Test Module to test and see if output is correct
+    def test_module_die(self):
+        for settler in self.settlers:
+            settler.health = 3
+
+#Calling the output menu
+output_menu = """
+
+1. Continue on Trail
+2. Change Pace
+3. Change Rations
+4. Rest
+5. Settler Report
+
+"""
+
+#Class to play on
+def play_trail(wagon):
+    """ Iterates over trail until they get to the destination or lose """
+    #wagon.test_module_die()
+    #Print your starting stats and the output_menu
+    wagon.__str__()
+    #If game isn't over, do this
+    while not wagon.game_over():
+
+        #If settlers health is over 100, their max is 100 so set it back to 100
+        for settler in wagon.settlers:
+            if settler.health > 100:
+                settler.health = 100
+        print(output_menu)
+        choice = input("Choose your menu option:\n")  # Get the players choice from menu
+        if choice == "1":
+            wagon.move()
+            wagon.__str__()
+            
+        elif choice == "2":  # change Pace
+            pace_choice = int(input("What pace would you like to take?\nChoose 1, 2, or 3\n\n"))  # Get new pace from user
+            wagon.pace = int(pace_choice)
+            wagon.__str__()
+
+
+        elif choice == "3":  # Change Rations
+            ration_choice = int(input("What rations would you like to take?\nChoose 1, 2, or 3\n\n"))  # Get new rations from user
+            wagon.ration = int(ration_choice)
+            wagon.__str__()
+
+        elif choice == "4":
+            rest_days = 3  # Get number of days to rest from user.
+            try:
+                wagon.rest(rest_days)
+                print("")
+                wagon.__str__()
+
+            except:
+                print("You must enter an integer larger than or equal to 1 and less than or equal to 10")
+        elif choice == "5":  # output the state of the settlers
+            print("Settlers ")
+            for settler in wagon.settlers:
+                print(settler)
+        else:
+            print("You chose an invalid menu option. Please try again")
+
+
+wagon = Wagon(2000, 0, 2, 1, 1)
+wagon.settlers.append(Person("Brad"))
+wagon.settlers.append(Person("Joe"))
+wagon.settlers.append(Person("Victoria"))
+wagon.settlers.append(Person("Rain"))
+wagon.settlers.append(Person("Haley"))
+play_trail(wagon)
+
+
+
